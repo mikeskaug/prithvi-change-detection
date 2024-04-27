@@ -1,0 +1,8 @@
+fiona==1.9.*
+jupyterlab==4.1.*
+matplotlib==3.8.*p
+torch==2.2.*
+torchvision==0.17.*
+einops==0.7.*
+timm==0.9.*
+rasterio==1.3.*
