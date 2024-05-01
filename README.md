@@ -14,6 +14,15 @@ We can compare performance to the [AB2CD](https://arxiv.org/abs/2309.01066) resu
 2. Normalization statistics?
 3. Generate target masks from the "post" geojson labels
 4. Create Dataset and Dataloaders
+5. Generate dataset metadata table
+    - mean and std per band
+    - file paths
+    - damage percentages
+    - cloud percentage?
+    - centroid lon/lat
+    - lon/lat extent
+    - image dates
+    - pre/post category
 
 # Setup
 
@@ -39,3 +48,13 @@ Make it importable:
 Download the data set and follow the instructions at: https://xview2.org/download
 
 
+# NOTES
+
+Sentinal bands in HLS data used to train Prithvi:
+
+B02: blue, 490 nm
+B03: green, 560 nm
+B04: red, 665 nm
+B8A: IR, 865 nm
+B11: SWIR, 1610 nm
+B12: SWIR, 2190 nm

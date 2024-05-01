@@ -45,10 +45,11 @@ def preprocess_image(image: np.array):
     # normalize image
     normalized = ((image - DATA_MEAN) / DATA_STD)
 
-    # add zero-filled IR channels
-    normalized = np.concatenate([normalized, np.zeros((3, 224, 224))], axis=0)
+    # reverse band order RGB -> BGR to match HLS data B02, B03, B04
+    bgr = np.flip(normalized, axis=0)
+
         
-    return normalized
+    return bgr
 
 
 def load_raster(path, out_size=None):
@@ -67,4 +68,6 @@ def load_raster(path, out_size=None):
             resampling=rasterio.enums.Resampling.bilinear
         )
 
-    return img, src
+        src_profile = src.profile
+
+    return img, src_profile
