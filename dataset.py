@@ -25,20 +25,20 @@ class XBDDataset(Dataset):
 
     def __getitem__(self, idx):
         pre_image_path = self.image_paths[idx]
-        pre_image, _ = load_raster(pre_image_path, 224)
+        pre_image, _ = load_raster(pre_image_path)
         pre_image = preprocess_image(pre_image)
 
         post_image_path = pre_image_path.replace('pre', 'post')
-        post_image, _ = load_raster(post_image_path, 224)
+        post_image, _ = load_raster(post_image_path)
         post_image = preprocess_image(post_image)
 
         both_frames = np.stack([pre_image, post_image], axis=1)
         
         input = torch.from_numpy(both_frames).to(torch.float32)
 
-        # labels = get label raster
+        labels, _ = load_raster(post_image_path.replace('images', 'labels'))
         
-        return input #, labels
+        return input , labels
 
 
 def preprocess_image(image: np.array):
