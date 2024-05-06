@@ -10,19 +10,10 @@ We can compare performance to the [AB2CD](https://arxiv.org/abs/2309.01066) resu
 
 # TODO
 
-1. Check on downsampling and zero filling missing bands
-2. Normalization statistics?
-3. Generate target masks from the "post" geojson labels
-4. Create Dataset and Dataloaders
-5. Generate dataset metadata table
-    - mean and std per band
-    - file paths
-    - damage percentages
-    - cloud percentage?
-    - centroid lon/lat
-    - lon/lat extent
-    - image dates
-    - pre/post category
+1. Figure out 2-frame encoder output reshaping
+2. Set up loss function
+3. Set up training
+
 
 # Setup
 
