@@ -105,28 +105,32 @@ class DamageSegmentation(nn.Module):
             UpconvBlock(num_filters[3], num_filters[4], upmode="conv_transpose"),
             ConvBlock(num_filters[4], num_filters[4], num_conv_layers=2, drop_rate=dropout_rate)
         )  # 64 x 1024 x 1024
-        
+
+        self.decoder = nn.Sequential(
+            self.decoder_1,
+            self.decoder_2,
+            self.decoder_3,
+            self.decoder_4
+        )
 
         self.classifier = nn.Conv2d(kernel_size=1, in_channels=num_filters[4], out_channels=MODEL_ARGS['num_classes'])
         
     def forward(self, input):
-        embedding = self.encoder(input) # batch size x (64 x 64) x 768 
+        # axis=1 is 2 frames, each 64x64 patches, plus one cls token
+        embedding = self.encoder(input) # batch size x ((64 x 64)*2 + 1) x 768  = [batch size, 8193, 768]
 
         # drop cls token
-        reshaped_features = embedding[:, 1:, :]
+        reshaped_embedding = embedding[:, 1:, :]
 
         # reshape
-        feature_img_side_length = int(np.sqrt(reshaped_features.shape[1]))
-        reshaped_features = reshaped_features.view(-1, feature_img_side_length, feature_img_side_length, MODEL_ARGS["embed_dim"])
+        feature_img_side_length = int(np.sqrt(reshaped_embedding.shape[1]))
+        reshaped_embedding = reshaped_embedding.view(-1, feature_img_side_length, feature_img_side_length, MODEL_ARGS["embed_dim"])
 
         # channels first
-        reshaped_features = reshaped_features.permute(0, 3, 1, 2)  # batch size x 768 x 64 x 64
+        reshaped_embedding = reshaped_embedding.permute(0, 3, 1, 2)  # batch size x 768 x 64 x 64
 
-        x = self.decoder_1(reshaped_features) # batch size x 384 x 128 x 128
-        x = self.decoder_2(x) # batch size x 192 x 256 x 256
-        x = self.decoder_3(x) # batch size x 96 x 512 x 512
-        x = self.decoder_4(x) # batch size x 64 x 1024 x 1024
+        features = self.decoder(reshaped_embedding) # batch size x 64 x 1024 x 1024
 
-        x = self.classifier(x) # batch size x 4 x 1024 x 1024
+        pred = self.classifier(features) # batch size x 4 x 1024 x 1024
 
-        return x
+        return pred
