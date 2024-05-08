@@ -1,5 +1,6 @@
 
 
+import torch
 from torch import nn
 import numpy as np
 
@@ -116,18 +117,27 @@ class DamageSegmentation(nn.Module):
         self.classifier = nn.Conv2d(kernel_size=1, in_channels=num_filters[4], out_channels=MODEL_ARGS['num_classes'])
         
     def forward(self, input):
-        # axis=1 is 2 frames, each 64x64 patches, plus one cls token
+        # input.shape = [batch size, 3, 2, 1024, 1024] = [batch size, channels, time, height, width]
+        # embedding axis=1 is 2 frames, each 64x64 patches, plus one cls token
         embedding = self.encoder(input) # batch size x ((64 x 64)*2 + 1) x 768  = [batch size, 8193, 768]
 
         # drop cls token
         reshaped_embedding = embedding[:, 1:, :]
 
         # reshape
-        feature_img_side_length = int(np.sqrt(reshaped_embedding.shape[1]))
-        reshaped_embedding = reshaped_embedding.view(-1, feature_img_side_length, feature_img_side_length, MODEL_ARGS["embed_dim"])
+        feature_img_side_length = int(np.sqrt(reshaped_embedding.shape[1] / 2))
+        
+        # Slice the embeddings from each frame and reshape to 64 x 64
+        t0_embedding = reshaped_embedding[:, :reshaped_embedding.shape[1]//2, :] \
+            .view(-1, feature_img_side_length, feature_img_side_length, 768) # batch size x 64 x 64 x 768
+        t1_embedding = reshaped_embedding[:, reshaped_embedding.shape[1]//2:, :] \
+            .view(-1, feature_img_side_length, feature_img_side_length, 768) # batch size x 64 x 64 x 768
+        
+        # Stack the embeddings from each frame along the embedding dimension
+        reshaped_embedding = torch.concatenate([t0_embedding, t1_embedding], axis=-1) # batch size x 64 x 64 x (768*2)
 
         # channels first
-        reshaped_embedding = reshaped_embedding.permute(0, 3, 1, 2)  # batch size x 768 x 64 x 64
+        reshaped_embedding = reshaped_embedding.permute(0, 3, 1, 2)  # batch size x (768*2) x 64 x 64
 
         features = self.decoder(reshaped_embedding) # batch size x 64 x 1024 x 1024
 
