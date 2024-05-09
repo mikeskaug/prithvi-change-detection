@@ -13,6 +13,7 @@ We can compare performance to the [AB2CD](https://arxiv.org/abs/2309.01066) resu
 1. Figure out 2-frame encoder output reshaping
 2. Set up loss function
 3. Set up training
+4. Sort out input normalization and scaling
 
 
 # Setup
