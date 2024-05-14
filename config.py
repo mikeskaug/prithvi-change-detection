@@ -26,6 +26,6 @@ MODEL_ARGS = {
     'num_heads': 12,
     'patch_size': 16,
     'tubelet_size': 1,
-    'num_classes': 4 # No damage, minor, major, destroyed
+    'num_classes': 5 # No damage, minor, major, destroyed, unknown
 }
   

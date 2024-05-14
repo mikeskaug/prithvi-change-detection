@@ -13,11 +13,11 @@ from shapely import wkt
 from dataset import load_raster
 
 DAMAGE_CLASS_IDS ={
-    'no-damage': 0,
-    'un-classified': 0, # I'm not sure how to properly label this low frequency class.
-    'minor-damage': 1,
-    'major-damage': 2,
-    'destroyed': 3
+    'un-classified': 0,
+    'no-damage': 1,
+    'minor-damage': 2,
+    'major-damage': 3,
+    'destroyed': 4
 }
 
 
@@ -34,12 +34,12 @@ def mask_from_features(features: list, mask_shape: tuple) -> np.array:
         mask_img = rasterize(
             shapes,
             out_shape=mask_shape,
-            fill=DAMAGE_CLASS_IDS['no-damage'],
+            fill=DAMAGE_CLASS_IDS['un-classified'],
             dtype='uint8'
         )
     else:
         # no damage polygons in this sample
-        mask_img = np.zeros(mask_shape, dtype='uint8')
+        mask_img = np.ones(mask_shape, dtype='uint8') * DAMAGE_CLASS_IDS['un-classified']
 
     return mask_img
 
