@@ -82,7 +82,7 @@ class DamageSegmentation(nn.Module):
     def __init__(self, prithvi_encoder, dropout_rate=0):
         super(DamageSegmentation, self).__init__()
 
-        num_filters = [768, 384, 192, 96, 48] #= [MODEL_ARGS["embed_dim"] // (2**i) for i in range(5)]
+        num_filters = np.array([768, 384, 192, 96, 48]) * 2 # factor of 2 is from the two timesteps
 
         self.encoder = prithvi_encoder # 768 x 64 x 64
         
