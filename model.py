@@ -24,19 +24,19 @@ class ConvBlock(nn.Module):
                  padding=1, dilation=1, num_conv_layers=2, drop_rate=0):
         super(ConvBlock, self).__init__()
 
-        layers = [nn.Conv2d(in_channels, out_channels, kernel_size=kernel_size,
+        layers = [nn.Conv2d(in_channels, out_channels, groups=2, kernel_size=kernel_size,
                             stride=stride, padding=padding, dilation=dilation, bias=False),
                   nn.BatchNorm2d(out_channels),
                   nn.ReLU(inplace=True), ]
 
         if num_conv_layers > 1:
             if drop_rate > 0:
-                layers += [nn.Conv2d(out_channels, out_channels, kernel_size=kernel_size,
+                layers += [nn.Conv2d(out_channels, out_channels, groups=2,  kernel_size=kernel_size,
                                      stride=stride, padding=padding, dilation=dilation, bias=False),
                            nn.BatchNorm2d(out_channels), nn.ReLU(inplace=True),
                            nn.Dropout(drop_rate), ] * (num_conv_layers - 1)
             else:
-                layers += [nn.Conv2d(out_channels, out_channels, kernel_size=kernel_size, stride=stride,
+                layers += [nn.Conv2d(out_channels, out_channels, groups=2,  kernel_size=kernel_size, stride=stride,
                                      padding=padding, dilation=dilation, bias=False),
                            nn.BatchNorm2d(out_channels), nn.ReLU(inplace=True), ] * (num_conv_layers - 1)
 
@@ -58,7 +58,7 @@ class UpconvBlock(nn.Module):
                         be applied to upsample the feature maps.
     '''
 
-    def __init__(self, in_channels, out_channels, upmode='deconv'):
+    def __init__(self, in_channels, out_channels, upmode='conv_transpose'):
         super(UpconvBlock, self).__init__()
 
         if upmode == 'upsample':
@@ -69,7 +69,7 @@ class UpconvBlock(nn.Module):
             )
 
         elif upmode == 'conv_transpose':
-            self.block = nn.ConvTranspose2d(in_channels, out_channels, kernel_size=3, stride=2)
+            self.block = nn.ConvTranspose2d(in_channels, out_channels, groups=2, kernel_size=3, stride=2)
 
         else:
             raise ValueError('Provided upsampling mode is not recognized.')
@@ -99,7 +99,7 @@ class DamageSegmentation(nn.Module):
 
         self.decoder_3 = nn.Sequential(
             UpconvBlock(num_filters[2], num_filters[3], upmode="conv_transpose"),
-             ConvBlock(num_filters[3], num_filters[3], num_conv_layers=2, drop_rate=dropout_rate)
+            ConvBlock(num_filters[3], num_filters[3], num_conv_layers=2, drop_rate=dropout_rate)
         )  # 96 x 512 x 512
 
         self.decoder_4 = nn.Sequential(
