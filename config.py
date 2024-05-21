@@ -15,21 +15,31 @@ DATA_STD = np.array([
 ]).reshape((3, 1, 1))
 
 MODEL_ARGS = {
-    'decoder_depth': 8,
-    'decoder_embed_dim': 512,
-    'decoder_num_heads': 16,
-    'depth': 12,
     'embed_dim': 768,
     'img_size': 1024,
-    'in_chans': 3,
+    'input_channels': 3,
     'num_frames': 2,
-    'num_heads': 12,
     'patch_size': 16,
     'tubelet_size': 1,
-    'num_classes': 5, # No damage, minor, major, destroyed, unknown
+    'num_classes': 5, # No damage, minor, major, destroyed, un-classified
     'working_dir': 'output',
     'out_dir': 'output',
-
+    'gpu_devices': [0],
+    'model_init_type': 'kaiming',
+    'epochs': 1,
+    'optimizer': 'adam',
+    'LR': 0.011,
+    'LR_policy': 'PolynomialLR',
+    'checkpoint_interval': 1,
+    'resume': False,
+    'resume_epoch': None,
+    'loss_weights': [
+        1.0608302, # un-classified
+        23.77204298, # no-damage
+        172.36920418, # minor
+        162.07106618, # major
+        302.64348895, # destroyed
+    ]
 }
 
 DAMAGE_CLASS_IDS = {
