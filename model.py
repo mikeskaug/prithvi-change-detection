@@ -33,17 +33,19 @@ class ConvBlock(nn.Module):
             if drop_rate > 0:
                 layers += [nn.Conv2d(out_channels, out_channels, groups=2,  kernel_size=kernel_size,
                                      stride=stride, padding=padding, dilation=dilation, bias=False),
-                           nn.BatchNorm2d(out_channels), nn.ReLU(inplace=True),
+                           nn.BatchNorm2d(out_channels), 
+                           nn.ReLU(inplace=True),
                            nn.Dropout(drop_rate), ] * (num_conv_layers - 1)
             else:
                 layers += [nn.Conv2d(out_channels, out_channels, groups=2,  kernel_size=kernel_size, stride=stride,
                                      padding=padding, dilation=dilation, bias=False),
-                           nn.BatchNorm2d(out_channels), nn.ReLU(inplace=True), ] * (num_conv_layers - 1)
+                           nn.BatchNorm2d(out_channels), 
+                           nn.ReLU(inplace=True), ] * (num_conv_layers - 1)
 
-        self.block = nn.Sequential(*layers)
+        self.conv_block = nn.Sequential(*layers)
 
     def forward(self, inputs):
-        return self.block(inputs)
+        return self.conv_block(inputs)
     
 
 class UpconvBlock(nn.Module):
@@ -62,20 +64,20 @@ class UpconvBlock(nn.Module):
         super(UpconvBlock, self).__init__()
 
         if upmode == 'upsample':
-            self.block = nn.Sequential(
+            self.upconv_block = nn.Sequential(
                 nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True),
                 nn.BatchNorm2d(in_channels),
                 nn.Conv2d(in_channels, out_channels, kernel_size=1, stride=1, bias=False)
             )
 
         elif upmode == 'conv_transpose':
-            self.block = nn.ConvTranspose2d(in_channels, out_channels, groups=2, kernel_size=3, stride=2)
+            self.upconv_block = nn.ConvTranspose2d(in_channels, out_channels, groups=2, kernel_size=3, stride=2)
 
         else:
             raise ValueError('Provided upsampling mode is not recognized.')
 
     def forward(self, inputs):
-        return self.block(inputs)
+        return self.upconv_block(inputs)
     
 
 class DamageSegmentation(nn.Module):
@@ -86,32 +88,22 @@ class DamageSegmentation(nn.Module):
 
         self.encoder = prithvi_encoder # 768 x 64 x 64
         
-        
-        self.decoder_1 = nn.Sequential(
+        self.decoder = nn.Sequential(
             UpconvBlock(num_filters[0], num_filters[1], upmode="conv_transpose"),
-            ConvBlock(num_filters[1], num_filters[1], num_conv_layers=2, drop_rate=dropout_rate)
-        )  # 384 x 128 x 128
+            ConvBlock(num_filters[1], num_filters[1], num_conv_layers=2, drop_rate=dropout_rate),
+             # 384 x 128 x 128
 
-        self.decoder_2 = nn.Sequential(
             UpconvBlock(num_filters[1], num_filters[2], upmode="conv_transpose"),
-            ConvBlock(num_filters[2], num_filters[2], num_conv_layers=2, drop_rate=dropout_rate)
-        )  # 192 x 256 x 256
+            ConvBlock(num_filters[2], num_filters[2], num_conv_layers=2, drop_rate=dropout_rate),
+             # 192 x 256 x 256
 
-        self.decoder_3 = nn.Sequential(
             UpconvBlock(num_filters[2], num_filters[3], upmode="conv_transpose"),
-            ConvBlock(num_filters[3], num_filters[3], num_conv_layers=2, drop_rate=dropout_rate)
-        )  # 96 x 512 x 512
+            ConvBlock(num_filters[3], num_filters[3], num_conv_layers=2, drop_rate=dropout_rate),
+             # 96 x 512 x 512
 
-        self.decoder_4 = nn.Sequential(
             UpconvBlock(num_filters[3], num_filters[4], upmode="conv_transpose"),
             ConvBlock(num_filters[4], num_filters[4], num_conv_layers=2, drop_rate=dropout_rate)
-        )  # 64 x 1024 x 1024
-
-        self.decoder = nn.Sequential(
-            self.decoder_1,
-            self.decoder_2,
-            self.decoder_3,
-            self.decoder_4
+             # 64 x 1024 x 1024
         )
 
         self.classifier = nn.Conv2d(kernel_size=1, in_channels=num_filters[4], out_channels=MODEL_ARGS['num_classes'])
@@ -119,7 +111,7 @@ class DamageSegmentation(nn.Module):
     def forward(self, input):
         # input.shape = [batch size, 3, 2, 1024, 1024] = [batch size, channels, time, height, width]
         # embedding axis=1 is 2 frames, each 64x64 patches, plus one cls token
-        embedding = self.encoder(input) # batch size x ((64 x 64)*2 + 1) x 768  = [batch size, 8193, 768]
+        embedding, _, _ = self.encoder(input) # batch size x ((64 x 64)*2 + 1) x 768  = [batch size, 8193, 768]
 
         # drop cls token
         reshaped_embedding = embedding[:, 1:, :]
