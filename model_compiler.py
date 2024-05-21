@@ -127,9 +127,9 @@ class PolynomialLR(_LRScheduler):
 
 class ModelCompiler:
 
-    def __init__(self, model, working_dir, out_dir, num_classes, inch, class_mapping, gpu_devices=[0],
+    def __init__(self, model, working_dir, out_dir, num_classes, class_mapping, gpu_devices=[0],
                  model_init_type='kaiming', params_init=None, freeze_params=None):
-        r'''
+        '''
         Train the model.
 
         Arguments:
@@ -138,7 +138,6 @@ class ModelCompiler:
             working_dir (str): General Directory to store output from any experiment.
             out_dir (str): specific output directory for the current experiment.
             num_classes (int): number of output classes based on the classification scheme.
-            inch (int): number of input channels.
             class_mapping (dict): A dictionary mapping class indices to class names.
             gpu_devices (list): list of GPU indices to use for parallelism if multiple GPUs are available.
                                 Default is set to index 0 for a single GPU.
@@ -154,7 +153,6 @@ class ModelCompiler:
         self.out_dir = out_dir
 
         self.num_classes = num_classes
-        self.inch = inch
         self.class_mapping = class_mapping
         self.gpu_devices = gpu_devices
         self.model_init_type = model_init_type
@@ -203,7 +201,6 @@ class ModelCompiler:
             None
         '''
 
-        # inparams = torch.load(self.params_init, map_location='cuda:0')
         inparams = torch.load(self.params_init)
 
         model_dict = self.model.state_dict()
@@ -224,7 +221,7 @@ class ModelCompiler:
                     p.requires_grad = False
 
     def fit(self, trainDataset, valDataset, epochs, optimizer_name, lr_init, 
-            lr_policy, criterion, momentum=None, checkpoint_interval=20, 
+            lr_policy, loss_fn, momentum=None, checkpoint_interval=20, 
             resume=False, resume_epoch=None, **kwargs):
         '''
         Train the model on the provided datasets.
@@ -236,7 +233,7 @@ class ModelCompiler:
             optimizer_name (str): The name of the optimizer to use.
             lr_init (float): The initial learning rate.
             lr_policy (str): The learning rate policy.
-            criterion: The loss criterion.
+            loss_fn: The loss function.
             momentum (float, optional): The momentum factor for the optimizer (default: None).
             checkpoint_interval (int): How often to save a checkpoint during training.
             resume (bool, optional): Whether to resume training from a checkpoint (default: False).
@@ -328,10 +325,10 @@ class ModelCompiler:
 
             start_epoch = datetime.now()
 
-            train_one_epoch(trainDataset, self.model, criterion, optimizer, 
+            train_one_epoch(trainDataset, self.model, loss_fn, optimizer, 
                             scheduler, device=self.device, 
                             train_loss=train_loss)
-            validate_one_epoch(valDataset, self.model, criterion, device=self.device, 
+            validate_one_epoch(valDataset, self.model, loss_fn, device=self.device, 
                                val_loss=val_loss)
 
 

@@ -11,14 +11,7 @@ import numpy as np
 from shapely import wkt
 
 from dataset import load_raster
-
-DAMAGE_CLASS_IDS ={
-    'un-classified': 0,
-    'no-damage': 1,
-    'minor-damage': 2,
-    'major-damage': 3,
-    'destroyed': 4
-}
+from config import DAMAGE_CLASS_IDS
 
 
 def mask_from_features(features: list, mask_shape: tuple) -> np.array:

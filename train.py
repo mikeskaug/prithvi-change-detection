@@ -9,7 +9,6 @@ def train_one_epoch(trainData, model, loss_fn, optimizer, device, train_loss=[])
             model (initialized model) -- Choice of segmentation Model to train.
             loss_fn -- Chosen function to calculate loss over training samples.
             optimizer -- Chosen function for optimization.
-            scheduler -- Update policy for learning rate decay.
             device --(str) Either 'cuda' or 'cpu'.
             train_loss -- (empty list) To record average training loss for each epoch.
             
