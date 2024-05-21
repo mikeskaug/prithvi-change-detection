@@ -111,6 +111,7 @@ def metadata(data_dir: str, out_file: str) -> None:
             'image_lat': image_origin[1],
             'disaster': pre_labels['metadata']['disaster'],
             'disaster_type': pre_labels['metadata']['disaster_type'],
+            'xy_area_no-damage': sum([shape.shape.area for shape in shapes if shape.type == 'no-damage']),
             'xy_area_minor-damage': sum([shape.shape.area for shape in shapes if shape.type == 'minor-damage']),
             'xy_area_major-damage': sum([shape.shape.area for shape in shapes if shape.type == 'major-damage']),
             'xy_area_destroyed': sum([shape.shape.area for shape in shapes if shape.type == 'destroyed']),

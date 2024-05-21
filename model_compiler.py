@@ -189,12 +189,11 @@ class ModelCompiler:
         else:
             print('---------- Vanilla Model compiled successfully ----------')
 
-    def load_params(self, dir_params, freeze_params):
+    def load_params(self, freeze_params):
         '''
         Load parameters from a file and update the model's state dictionary.
 
         Args:
-            dir_params (str): Directory path to the parameters file.
             freeze_params (list): List of indices corresponding to the model's parameters that should be frozen.
 
         Returns:
