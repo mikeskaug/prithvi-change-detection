@@ -26,6 +26,19 @@ MODEL_ARGS = {
     'num_heads': 12,
     'patch_size': 16,
     'tubelet_size': 1,
-    'num_classes': 5 # No damage, minor, major, destroyed, unknown
+    'num_classes': 5, # No damage, minor, major, destroyed, unknown
+    'working_dir': 'output',
+    'out_dir': 'output',
+
 }
+
+DAMAGE_CLASS_IDS = {
+    'un-classified': 0,
+    'no-damage': 1,
+    'minor-damage': 2,
+    'major-damage': 3,
+    'destroyed': 4
+}
+
+CLASS_MAPPING = {val: key for key, val in DAMAGE_CLASS_IDS.items()}
   
