@@ -44,9 +44,21 @@ Download the data set and follow the instructions at: https://xview2.org/downloa
 
 Sentinal bands in HLS data used to train Prithvi:
 
+```
 B02: blue, 490 nm
 B03: green, 560 nm
 B04: red, 665 nm
 B8A: IR, 865 nm
 B11: SWIR, 1610 nm
 B12: SWIR, 2190 nm
+```
+
+**Loss Scaling**
+1. Over the dataset, compute the pixel area of each class for each image. (Done in create_dataset.metadata and stored in metadata.csv)
+2. Sum the pixel area of each class over the whole dataset.
+3. Find total pixel area of the dataset, `total_area = num_images * 1024*1024`
+4. Calculate the loss weights as:
+```
+inverse_probability = 1 / (class_areas / total_area)
+weights =  inverse_probability / (inverse_probability.sum())
+```
