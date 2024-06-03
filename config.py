@@ -34,11 +34,11 @@ MODEL_ARGS = {
     'resume': False,
     'resume_epoch': None,
     'loss_weights': [
-        1.0608302, # un-classified
-        23.77204298, # no-damage
-        172.36920418, # minor
-        162.07106618, # major
-        302.64348895, # destroyed
+        0.0016, # un-classified
+        0.0359, # no-damage
+        0.2604, # minor
+        0.2448, # major
+        0.4572, # destroyed
     ]
 }
 
