@@ -22,7 +22,6 @@ MODEL_ARGS = {
     'patch_size': 16,
     'tubelet_size': 1,
     'num_classes': 5, # No damage, minor, major, destroyed, un-classified
-    'working_dir': 'output',
     'out_dir': 'output',
     'gpu_devices': [0],
     'model_init_type': 'kaiming',
@@ -30,10 +29,11 @@ MODEL_ARGS = {
     'optimizer': 'adam',
     'LR': 0.011,
     'LR_policy': 'PolynomialLR',
+    'LR_kwargs': {},
     'checkpoint_interval': 1,
     'resume': False,
     'resume_epoch': None,
-    'loss_weights': [
+    'loss_weights': [ # should match the index order of DAMAGE_CLASS_IDS
         0.0016, # un-classified
         0.0359, # no-damage
         0.2604, # minor

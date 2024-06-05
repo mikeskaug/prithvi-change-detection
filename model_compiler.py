@@ -127,7 +127,7 @@ class PolynomialLR(_LRScheduler):
 
 class ModelCompiler:
 
-    def __init__(self, model, working_dir, out_dir, num_classes, class_mapping, gpu_devices=[0],
+    def __init__(self, model, out_dir, num_classes, class_mapping, gpu_devices=[0],
                  model_init_type='kaiming', params_init=None, freeze_params=None):
         '''
         Train the model.
@@ -135,7 +135,6 @@ class ModelCompiler:
         Arguments:
             model (ordered Dict): initialized model either vanilla or pre-trained depending on
                                   the argument 'params_init'.
-            working_dir (str): General Directory to store output from any experiment.
             out_dir (str): specific output directory for the current experiment.
             num_classes (int): number of output classes based on the classification scheme.
             class_mapping (dict): A dictionary mapping class indices to class names.
@@ -149,7 +148,6 @@ class ModelCompiler:
                                   the model on the target domain used in the model-based transfer learning.
         '''
 
-        self.working_dir = working_dir
         self.out_dir = out_dir
 
         self.num_classes = num_classes
@@ -244,23 +242,23 @@ class ModelCompiler:
         '''
 
         # Set the folder to save results.
-        working_dir = self.working_dir
         out_dir = self.out_dir
-        model_dir = '{}/{}/{}_ep{}'.format(working_dir, out_dir, self.model_name, epochs)
+        model_dir = Path(f'{out_dir}/{self.model_name}_ep{epochs}')
+        log_dir = model_dir / 'log'
 
-        if not os.path.exists(Path(working_dir) / out_dir / model_dir):
-            os.makedirs(Path(working_dir) / out_dir / model_dir)
+        if not os.path.exists(model_dir):
+            os.makedirs(model_dir)
 
-        self.checkpoint_dirpath = Path(working_dir) / out_dir / model_dir / 'chkpt'
+        self.checkpoint_dirpath = model_dir / 'chkpt'
         if not os.path.exists(self.checkpoint_dirpath):
             os.makedirs(self.checkpoint_dirpath)
 
-        os.chdir(Path(working_dir) / out_dir / model_dir)
+        # os.chdir(Path(working_dir) / out_dir / model_dir)
 
         print('-------------------------- Start training --------------------------')
         start = datetime.now()
 
-        writer = SummaryWriter('../')
+        writer = SummaryWriter(log_dir)
         lr = lr_init
 
         optimizer = get_optimizer(optimizer_name,
@@ -324,12 +322,8 @@ class ModelCompiler:
 
             start_epoch = datetime.now()
 
-            train_one_epoch(trainDataset, self.model, loss_fn, optimizer, 
-                            scheduler, device=self.device, 
-                            train_loss=train_loss)
-            validate_one_epoch(valDataset, self.model, loss_fn, device=self.device, 
-                               val_loss=val_loss)
-
+            train_one_epoch(trainDataset, self.model, loss_fn, optimizer, device=self.device, train_loss=train_loss)
+            validate_one_epoch(valDataset, self.model, loss_fn, device=self.device, val_loss=val_loss)
 
             if lr_policy == 'ReduceLROnPlateau':
                 scheduler.step(val_loss[t])
@@ -370,16 +364,16 @@ class ModelCompiler:
             filename (str): The filename to save the evaluation results in the output CSV.
     '''
 
-        if not os.path.exists(Path(self.working_dir) / self.out_dir):
-            os.makedirs(Path(self.working_dir) / self.out_dir)
+        if not os.path.exists(self.model_dir):
+            os.makedirs(self.model_dir)
 
-        os.chdir(Path(self.working_dir) / self.out_dir)
+        # os.chdir(Path(self.working_dir) / self.out_dir)
 
         print('---------------- Start evaluation ----------------')
 
         start = datetime.now()
 
-        do_accuracy_evaluation(self.model, eval_dataset, self.num_classes, self.class_mapping, filename)
+        do_accuracy_evaluation(self.model, eval_dataset, self.num_classes, self.class_mapping, self.model_dir / filename)
 
         duration_in_sec = (datetime.now() - start).seconds
         print(

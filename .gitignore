@@ -3,3 +3,5 @@ prithvi_100m/
 data/
 __pycache__/
 .vscode/
+.DS_Store
+output/

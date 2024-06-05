@@ -111,7 +111,7 @@ class DamageSegmentation(nn.Module):
     def forward(self, input):
         # input.shape = [batch size, 3, 2, 1024, 1024] = [batch size, channels, time, height, width]
         # embedding axis=1 is 2 frames, each 64x64 patches, plus one cls token
-        embedding, _, _ = self.encoder(input) # batch size x ((64 x 64)*2 + 1) x 768  = [batch size, 8193, 768]
+        embedding, _, _ = self.encoder(input, mask_ratio=0) # batch size x ((64 x 64)*2 + 1) x 768  = [batch size, 8193, 768]
 
         # drop cls token
         reshaped_embedding = embedding[:, 1:, :]
