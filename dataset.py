@@ -16,7 +16,7 @@ class XBDDataset(Dataset):
             target_transform=None
         ):
         self.data_dir = data_dir
-        self.image_paths = [os.path.join(data_dir, 'images', fl) for fl in os.listdir(os.path.join(data_dir, 'images')) if 'pre' in fl]
+        self.image_paths = [os.path.join(data_dir, 'images', fl) for fl in os.listdir(os.path.join(data_dir, 'images')) if ('pre' in fl) and (fl.endswith('.tif'))]
         self.transform = transform
         self.target_transform = target_transform
 
@@ -37,6 +37,8 @@ class XBDDataset(Dataset):
         input = torch.from_numpy(both_frames).to(torch.float32)
 
         labels, _ = load_raster(post_image_path.replace('images', 'labels'))
+        labels = torch.from_numpy(labels).to(torch.int64)
+        labels = torch.squeeze(labels) # remove the size=1 channel dimension and return a 2D tensor
         
         return input , labels
 

@@ -253,8 +253,6 @@ class ModelCompiler:
         if not os.path.exists(self.checkpoint_dirpath):
             os.makedirs(self.checkpoint_dirpath)
 
-        # os.chdir(Path(working_dir) / out_dir / model_dir)
-
         print('-------------------------- Start training --------------------------')
         start = datetime.now()
 
@@ -300,10 +298,11 @@ class ModelCompiler:
         val_loss = []
 
         if resume:
-            model_state_file = os.path.join(self.checkpoint_dirpath, '{}_checkpoint.pth.tar'.format(resume_epoch))
+            print(f'Resuming at epoch {resume_epoch}')
+            model_state_file = os.path.join(self.checkpoint_dirpath, '{}_checkpoint.pth.tar'.format(resume_epoch-1))
             if os.path.isfile(model_state_file):
                 checkpoint = torch.load(model_state_file)
-                resume_epoch = checkpoint['epoch']
+                # resume_epoch = checkpoint['epoch']
                 scheduler.load_state_dict(checkpoint['scheduler'])
                 self.model.load_state_dict(checkpoint['state_dict'])
                 optimizer.load_state_dict(checkpoint['optimizer'])
@@ -318,20 +317,20 @@ class ModelCompiler:
 
         for t in iterable:
 
-            print('Epoch [{}/{}]'.format(t + 1, epochs))
+            print(f'--------------------- Epoch [{t}/{epochs}] --------------------------')
 
             start_epoch = datetime.now()
 
-            train_one_epoch(trainDataset, self.model, loss_fn, optimizer, device=self.device, train_loss=train_loss)
+            train_one_epoch(trainDataset, self.model, loss_fn, optimizer, device=self.device, train_loss=train_loss, verbose=True)
             validate_one_epoch(valDataset, self.model, loss_fn, device=self.device, val_loss=val_loss)
 
             if lr_policy == 'ReduceLROnPlateau':
                 scheduler.step(val_loss[t])
             elif lr_policy == 'PolynomialLR':
                 scheduler.step(t)
-                print('LR: {}'.format(optimizer.param_groups[0]['lr']))
+                print(f'LR: {optimizer.param_groups[0]["lr"]}')
 
-            print('time:', (datetime.now() - start_epoch).seconds)
+            print(f'epoch time: {(datetime.now() - start_epoch).seconds} sec.')
 
             writer.add_scalars('Loss',
                                {'train loss': train_loss[t],
@@ -339,14 +338,14 @@ class ModelCompiler:
                                t + 1)
 
             if (t + 1) % checkpoint_interval == 0:
-                torch.save({'epoch': t + 1,
+                torch.save({'epoch': t,
                             'state_dict': self.model.state_dict() if len(self.gpu_devices) > 1 else \
-                                self.model.module.state_dict(),
+                            self.model.state_dict(),
                             'scheduler': scheduler.state_dict(),
                             'optimizer': optimizer.state_dict(),
                             'train loss': train_loss,
                             'Evaluation loss': val_loss},
-                           os.path.join(self.checkpoint_dirpath, f'{t + 1}_checkpoint.pth.tar'))
+                           os.path.join(self.checkpoint_dirpath, f'{t}_checkpoint.pth.tar'))
 
         writer.close()
 

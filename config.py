@@ -25,14 +25,14 @@ MODEL_ARGS = {
     'out_dir': 'output',
     'gpu_devices': [0],
     'model_init_type': 'kaiming',
-    'epochs': 1,
+    'epochs': 10,
     'optimizer': 'adam',
     'LR': 0.011,
     'LR_policy': 'PolynomialLR',
     'LR_kwargs': {},
     'checkpoint_interval': 1,
-    'resume': False,
-    'resume_epoch': None,
+    'resume': True,
+    'resume_epoch': 1,
     'loss_weights': [ # should match the index order of DAMAGE_CLASS_IDS
         0.0016, # un-classified
         0.0359, # no-damage
