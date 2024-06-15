@@ -21,24 +21,24 @@ class ConvBlock(nn.Module):
     '''
 
     def __init__(self, in_channels, out_channels, kernel_size=3, stride=1,
-                 padding=1, dilation=1, num_conv_layers=2, drop_rate=0):
+                 padding='same', num_conv_layers=2, drop_rate=0):
         super(ConvBlock, self).__init__()
 
         layers = [nn.Conv2d(in_channels, out_channels, groups=2, kernel_size=kernel_size,
-                            stride=stride, padding=padding, dilation=dilation, bias=False),
+                            stride=stride, padding=padding, bias=False),
                   nn.BatchNorm2d(out_channels),
                   nn.ReLU(inplace=True), ]
 
         if num_conv_layers > 1:
             if drop_rate > 0:
                 layers += [nn.Conv2d(out_channels, out_channels, groups=2,  kernel_size=kernel_size,
-                                     stride=stride, padding=padding, dilation=dilation, bias=False),
+                                     stride=stride, padding=padding, bias=False),
                            nn.BatchNorm2d(out_channels), 
                            nn.ReLU(inplace=True),
                            nn.Dropout(drop_rate), ] * (num_conv_layers - 1)
             else:
                 layers += [nn.Conv2d(out_channels, out_channels, groups=2,  kernel_size=kernel_size, stride=stride,
-                                     padding=padding, dilation=dilation, bias=False),
+                                     padding=padding, bias=False),
                            nn.BatchNorm2d(out_channels), 
                            nn.ReLU(inplace=True), ] * (num_conv_layers - 1)
 
@@ -71,7 +71,7 @@ class UpconvBlock(nn.Module):
             )
 
         elif upmode == 'conv_transpose':
-            self.upconv_block = nn.ConvTranspose2d(in_channels, out_channels, groups=2, kernel_size=3, stride=2)
+            self.upconv_block = nn.ConvTranspose2d(in_channels, out_channels, groups=2, kernel_size=2, stride=2)
 
         else:
             raise ValueError('Provided upsampling mode is not recognized.')
