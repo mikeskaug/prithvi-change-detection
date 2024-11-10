@@ -1,6 +1,6 @@
 fiona==1.9.*
 jupyterlab==4.1.*
-matplotlib==3.8.*p
+matplotlib==3.8.*
 torch==2.2.*
 torchvision==0.17.*
 einops==0.7.*
