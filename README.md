@@ -8,13 +8,6 @@ The idea is to use the the pre-trainied Prithvi encoder to embed the "pre" and "
 
 We can compare performance to the [AB2CD](https://arxiv.org/abs/2309.01066) results on the same data.
 
-# TODO
-
-1. Figure out 2-frame encoder output reshaping
-2. Set up loss function
-3. Set up training
-4. Sort out input normalization and scaling
-
 
 # Setup
 
@@ -39,6 +32,10 @@ Make it importable:
 
 Download the data set and follow the instructions at: https://xview2.org/download
 
+
+## Create masks
+
+    python create_dataset.py target-masks path/to/data
 
 # NOTES
 

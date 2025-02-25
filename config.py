@@ -31,14 +31,14 @@ MODEL_ARGS = {
     'LR_policy': 'PolynomialLR',
     'LR_kwargs': {},
     'checkpoint_interval': 1,
-    'resume': True,
+    'resume': False,
     'resume_epoch': 1,
     'loss_weights': [ # should match the index order of DAMAGE_CLASS_IDS
-        0.0016, # un-classified
-        0.0359, # no-damage
-        0.2604, # minor
-        0.2448, # major
-        0.4572, # destroyed
+        0.000711, # un-classified
+        0.032151, # no-damage
+        0.284842, # minor
+        0.271633, # major
+        0.410663, # destroyed
     ]
 }
 
