@@ -10,3 +10,4 @@ shapely==2.0.*
 click==8.1.*
 pandas==2.2.*
 tensorboard==2.16.*
+numpy==1.* # this is because of a conflict between numpy>2 and pytorch

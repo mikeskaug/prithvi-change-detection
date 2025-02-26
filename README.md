@@ -35,7 +35,7 @@ Download the data set and follow the instructions at: https://xview2.org/downloa
 
 ## Create masks
 
-    python create_dataset.py target-masks path/to/data
+    python create_dataset.py target-masks --data_dir path/to/data
 
 # NOTES
 
